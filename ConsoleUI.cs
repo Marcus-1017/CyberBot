@@ -1,5 +1,6 @@
 using System;
 using System.Media;
+using System.Threading;
 
 //Marcus Johnson
 //ST10496028
@@ -62,4 +63,32 @@ public static class ConsoleUI
 
 
     }
+
+public static void PrintColourWord(string input, ConsoleColor colour, bool newline = true)
+{
+    Console.ForegroundColor = colour;
+    Console.Write(input);
+    Console.ResetColor();
+    
+    if (newline)
+    {
+        Console.WriteLine("");
+    }
+
 }
+
+//print methods
+public static void Print(string text, int speed = 5, bool newline = true)
+{
+    foreach (char c in text)
+    {
+        Console.Write(c);
+        Thread.Sleep(speed);
+    }
+    if (newline)
+    {
+        Console.WriteLine();
+    }
+}
+}
+
