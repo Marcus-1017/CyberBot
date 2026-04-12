@@ -4,8 +4,8 @@
 //ST10496028
 
 ConsoleUI.PlayGreetingAudio();
-
 ConsoleUI.DisplayAsciiArt();
+
 Console.WriteLine("hi there! what is your name??");
 
 string Name = Console.ReadLine();
@@ -21,3 +21,7 @@ ChatBot bot = new();
 
 bot.Name = Name;
 
+while (true)
+{
+    
+}
