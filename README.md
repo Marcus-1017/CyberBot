@@ -21,4 +21,5 @@
 ## youtube [youtube link](https://youtu.be/BtPp5oNgwtY) 
 
 ## CI screenshot
-![CI](assets/placeholder.png)
+![CI](assets/CI_Actions.png)
+![Commits](assets/Commits.png)
