@@ -7,10 +7,11 @@ public class ChatBot
 {
     public string ?Name; 
 
+    //Main dictionary, the program loops through this one first
     private Dictionary<string,string> responses = new() 
     {
         {"passw", 
-         ", you want to know more about passwords?"
+         "you want to know more about passwords?"
         +"\n══════════════════════════════════════════"
         +"\n1. Never use the same password more than once."
         +"\n2. Consider storing your passwords in a Password Manager."
@@ -22,23 +23,60 @@ public class ChatBot
         +"\nI hope that answers any questions you may have about passwords!"
         +"\n═══════════════════════════════════════════════════════════════\n"
         },
+        
+        {"scam", 
+         "you want to know more about internet scams?"
+        +"\n══════════════════════════════════════════"
+        +"\n1. Never send money or OTPs to someone you have only met online."
+        +"\n2. Be suspicious of urgent messages claiming your account will be locked."
+        +"\n3. Never share your ID number or bank details with unknown callers."
+        +"\n4. Always verify that your caller is from the organisation they claim to be from."
+        +"\n5. If it sounds too good to be true, it probably is a scam."
+        +"\n"
+        +"\nI hope that answers any questions you may have about internet scams!"
+        +"\n══════════════════════════════════════════════════════════════\n"
+        },
+
+        {"brows", 
+         "you want to know more about safe browsing?"
+        +"\n══════════════════════════════════════════"
+        +"\n1. Always look for HTTPS in the website address."
+        +"\n2. Avoid saving passwords in your browser."
+        +"\n3. Use an ad-blocker to avoid malicious advertisements."
+        +"\n4. Clear your browsing cache and cookies regularly."
+        +"\n"
+        +"\nI hope that answers any questions you may have about browsing!"
+        +"\n══════════════════════════════════════════════════════════════\n"
+        },
+
+        {"social", 
+         "you want to know more about social media?"
+        +"\n══════════════════════════════════════════"
+        +"\n1. Never post your location or travel plans in real-time."
+        +"\n2. Adjust privacy settings to 'Friends Only' for personal posts."
+        +"\n3. Be careful of friend requests from people you don't know."
+        +"\n4. Think before you post, it stays online forever."
+        +"\n"
+        +"\nI hope that answers any questions you may have about social media!"
+        +"\n══════════════════════════════════════════\n"
+        },
 
         {"phish", 
-         ", you want to know more about phishing?"
+         "you want to know more about phishing?"
         +"\n══════════════════════════════════════════"
         +"\n1. Never click links in emails asking for personal information."
         +"\n2. Check the sender's email address carefully for subtle misspellings."
         +"\n3. Legitimate organisations will never ask for your password via email."
         +"\n4. Wherever possible, go directly to the website instead of clicking the link."
         +"\n5. Report suspicious emails as phishing in your email client."
-        +"\n6. Never scan QR codes from sources you dont trust."
+        +"\n6. Never scan QR codes from sources you don't trust."
         +"\n"
         +"\nI hope that answers any questions you may have about phishing!"
         +"\n══════════════════════════════════════════════════════════════\n"
         },
 
         {"priva",
-         ", you want to know more about privacy?"
+         "you want to know more about privacy?"
         +"\n══════════════════════════════════════════"
         +"\n1. Review your social media privacy settings regularly."
         +"\n2. Avoid sharing personal media or information about yourself on the internet."
@@ -48,27 +86,65 @@ public class ChatBot
         +"\nI hope that answers any questions you may have about privacy!"
         +"\n═════════════════════════════════════════════════════════════\n"
         },
+
+        {"update",
+         "you want to know more about software updates?"
+        +"\n══════════════════════════════════════════"
+        +"\n1. Updates fix known security vulnerabilities hackers exploit."
+        +"\n2. Always install updates for your phone, laptop, and apps."
+        +"\n3. Turn on automatic updates so you never miss critical patches."
+        +"\n4. Outdated software is one of the most common ways hackers get in."
+        +"\n5. This includes your browser, antivirus, and operating system."
+        +"\n══════════════════════════════════════════\n"
+        }
+    };
+
+
+    //conversation dictionary, loops only if not null and it doesnt find any keywords from 'response' dictionary
+    private Dictionary<string,string> conversation = new()
+    {
         {
-        "how are", "I'm doing pretty well, thanks for asking!!!"
+        "hello", "hey!!\n"
         },
+
         {
-        "purpose", "My name is CyberBot, I am a cybersecurity awareness chatbot built in C#"
+        "hey", "helloooo\n"
+        },
+
+        {
+        "how are", "I'm doing pretty well, thanks for asking!!!\n"
+        },
+
+        {
+        "purpose", "My name is CyberBot, I am a cybersecurity awareness chatbot built in C#\n"
+        },
+
+        {
+        "topic", "I can talk about - passwords, phishing, internet privacy, social media safety, safe browsing, internet scams, software updates\n"
         }
     };
 
     //this method will take input from program.cs and 
     //loop through the dictionary to see if the input contains any keywords from the input
-    public string GetResponse(string input, string Name, out bool isFound){
+    public string? GetResponse(string input){
 
         foreach (var entry in responses)
         {
             if (input.Contains(entry.Key))
             {
-                isFound = true;
                 return entry.Value;
             }
         }
-        isFound = false;
-        return ", I'm not sure I know anything about that topic yet! \nCould you ask me about something else?\n";
+        return null;
     }
+
+        public string? GetConversation(string input)
+        {
+            foreach (var entry in conversation)
+            {
+                if (input.Contains(entry.Key))
+                    return entry.Value;
+            }
+            return null;
+        }
 }

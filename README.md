@@ -8,9 +8,17 @@
 ## requirements
 - .NET 10.0 or later (I have not run this project on earlier versions but it might work)
 
-## features
+## can talk about
+- basic greetings
 - passwords
 - phishing
-- privacy
+- internet privacy
+- social media safety
+- safe browsing
+- internet scams
+- software updates
 
+## youtube [youtube link](https://youtu.be/BtPp5oNgwtY) 
 
+## CI screenshot
+![CI](assets/placeholder.png)
