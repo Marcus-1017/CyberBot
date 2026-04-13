@@ -7,37 +7,38 @@ public class ChatBot
 {
     public string ?Name; 
 
-    public Dictionary<string,string> responses = new() 
+    private Dictionary<string,string> responses = new() 
     {
-        {"passw", "\n══════════════════════════════════════════" 
-        +"\nSo, you want to know more about passwords?"
+        {"passw", 
+         ", you want to know more about passwords?"
         +"\n══════════════════════════════════════════"
         +"\n1. Never use the same password more than once."
         +"\n2. Consider storing your passwords in a Password Manager."
         +"\n3. Always enable MFA (multi-factor authentication) when you can."
         +"\n4. Try to keep your passwords reasonably long and complex."
         +"\n5. Never share your passwords with anyone you don't trust."
+        +"\n6. Try to change your passwords every few months."
         +"\n"
         +"\nI hope that answers any questions you may have about passwords!"
-        +"\n═══════════════════════════════════════════════════════════════"
+        +"\n═══════════════════════════════════════════════════════════════\n"
         },
 
-        {"phish", "\n══════════════════════════════════════════"
-        +"\nSo, you want to know more about phishing?"
+        {"phish", 
+         ", you want to know more about phishing?"
         +"\n══════════════════════════════════════════"
         +"\n1. Never click links in emails asking for personal information."
         +"\n2. Check the sender's email address carefully for subtle misspellings."
         +"\n3. Legitimate organisations will never ask for your password via email."
         +"\n4. Wherever possible, go directly to the website instead of clicking the link."
         +"\n5. Report suspicious emails as phishing in your email client."
+        +"\n6. Never scan QR codes from sources you dont trust."
         +"\n"
         +"\nI hope that answers any questions you may have about phishing!"
-        +"\n══════════════════════════════════════════════════════════════"
+        +"\n══════════════════════════════════════════════════════════════\n"
         },
 
-        {
-        "priva", "\n══════════════════════════════════════════"
-        +"\nSo, you want to know more about privacy?"
+        {"priva",
+         ", you want to know more about privacy?"
         +"\n══════════════════════════════════════════"
         +"\n1. Review your social media privacy settings regularly."
         +"\n2. Avoid sharing personal media or information about yourself on the internet."
@@ -45,7 +46,7 @@ public class ChatBot
         +"\n4. Be heavily selective about which apps you grant permissions to."
         +"\n"
         +"\nI hope that answers any questions you may have about privacy!"
-        +"\n═════════════════════════════════════════════════════════════"
+        +"\n═════════════════════════════════════════════════════════════\n"
         },
         {
         "how are", "I'm doing pretty well, thanks for asking!!!"
@@ -57,15 +58,17 @@ public class ChatBot
 
     //this method will take input from program.cs and 
     //loop through the dictionary to see if the input contains any keywords from the input
-    public string GetResponse(string input){
+    public string GetResponse(string input, string Name, out bool isFound){
 
         foreach (var entry in responses)
         {
             if (input.Contains(entry.Key))
             {
+                isFound = true;
                 return entry.Value;
             }
         }
-        return "\nMy apologies, " + " " + "I'm not sure I know anything about that topic yet! \nCould you ask me about something else?";
+        isFound = false;
+        return ", I'm not sure I know anything about that topic yet! \nCould you ask me about something else?\n";
     }
 }

@@ -16,7 +16,7 @@ string Name = Console.ReadLine();
 //name handling loop
 while (string.IsNullOrWhiteSpace(Name))
 {
-    ConsoleUI.Print("Names can't be blank! Please try again.", 10);
+    ConsoleUI.Print("Names can't be blank! Please try again.\n", 10);
     
     Name = Console.ReadLine();
 
@@ -26,32 +26,46 @@ ChatBot bot = new();
 
 bot.Name = Name;
 
-ConsoleUI.Print("welcome, ", 10, false);
-ConsoleUI.PrintColourWord(bot.Name, ConsoleColor.Magenta, false);
-Console.Write("!\n\n");
+ConsoleUI.Print("\nwelcome, ", 10);
+ConsoleUI.PrintColourWord(bot.Name, ConsoleColor.Magenta);
+ConsoleUI.Print("!\n\n");
 
-ConsoleUI.Print("Feel free to ask me about ",5,false);
-ConsoleUI.PrintColourWord("my purpose , how I am,", ConsoleColor.Cyan, false);
-ConsoleUI.Print(" or, more importantly, any questions you may have regarding ",5,false);
-ConsoleUI.PrintColourWord("cybersecurity and internet safety!", ConsoleColor.Red, false);
-ConsoleUI.Print("\nI am good at talking about: ",5,false);
-ConsoleUI.PrintColourWord("Passwords, Phishing attacks, and Privacy", ConsoleColor.Cyan, false);
-ConsoleUI.Print("\nalternatively, type \"exit\" to exit the program");
-string? input = Console.ReadLine();
+ConsoleUI.Print("Feel free to ask me about ");
+ConsoleUI.PrintColourWord("my purpose , how I am,", ConsoleColor.Cyan);
+ConsoleUI.Print(" or, more importantly, any questions you may have regarding ");
+ConsoleUI.PrintColourWord("cybersecurity and internet safety!", ConsoleColor.Red);
+ConsoleUI.Print("\nI am good at talking about: ");
+ConsoleUI.PrintColourWord("Passwords, Phishing attacks, and Privacy", ConsoleColor.Cyan);
+ConsoleUI.Print(", alternatively, type \"exit\" to exit the program\n");
 
-bool run = true;
-while (run)
+while (true)
 {
-    if (input.Equals("exit"))
+    string input = Console.ReadLine();
+
+    if (input.ToLower() == "exit")
     {
-        run = false;
-        break;
+        break;        
+    }
+    if (string.IsNullOrWhiteSpace(input))
+    {
+        ConsoleUI.Print("please type something!\n");
+        continue;
+
     }
 
-    ConsoleUI.Print(bot.GetResponse(input.ToLower()), 1);
-    ConsoleUI.Print("\nor type \"exit\" to exit the program", 4);
+    string response = bot.GetResponse(input.ToLower(), bot.Name, out bool found);
+    
+    if (found)
+    {
+        ConsoleUI.Print("So, ", 5);
+    }
+    else
+    {
+        ConsoleUI.Print("My apologies, ", 5);
+    }
 
-    input = Console.ReadLine();
+    ConsoleUI.PrintColourWord(bot.Name, ConsoleColor.Magenta);        
+    ConsoleUI.Print(response, 2);
 }
 
 

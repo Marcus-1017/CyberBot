@@ -64,7 +64,7 @@ public static class ConsoleUI
 
     }
 
-public static void PrintColourWord(string input, ConsoleColor colour, bool newline = true)
+public static void PrintColourWord(string input, ConsoleColor colour, bool newline = false)
 {
     Console.ForegroundColor = colour;
     Console.Write(input);
@@ -78,7 +78,7 @@ public static void PrintColourWord(string input, ConsoleColor colour, bool newli
 }
 
 //print methods
-public static void Print(string text, int speed = 5, bool newline = true)
+public static void Print(string text, int speed = 5, bool newline = false)
 {
     foreach (char c in text)
     {
