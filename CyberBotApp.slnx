@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="CyberBot/CyberBot.csproj" />
+  <Project Path="CyberBotGUI/CyberBotGUI.csproj" />
+</Solution>
