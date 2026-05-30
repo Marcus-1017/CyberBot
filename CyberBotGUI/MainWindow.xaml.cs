@@ -45,8 +45,36 @@ public partial class MainWindow : Window
             return;
         }
 
+        //checks for follow ups before interests or sentiment to keep conversational flow
+        string? followUp = bot.GetFollowUp(input.ToLower());
+        if (followUp != null)
+        {
+            AddUserMessage(input);
+            AddBotMessage(followUp);
+            InputBox.Clear();
+            return;
+        }
+
+        string? interest = bot.DetectInterest(input.ToLower());
+        if (interest != null)
+        {
+            AddUserMessage(input);
+            AddBotMessage(interest);
+            InputBox.Clear();
+            return;
+        }
+
         AddUserMessage(input);
+        string? sentiment = bot.GetSentimentResponse(input.ToLower());
+        if (sentiment != null)
+            AddBotMessage(sentiment);
+
+        string? response = bot.GetResponse(input.ToLower()) ?? bot.GetConversation(input.ToLower());
         AddBotMessage(bot.GetResponse(input.ToLower()) ?? bot.GetConversation(input.ToLower()) ?? "I'm not sure I'm familiar with that keyword!");
+
+        //this is for specialised responses
+        if (bot.FavouriteTopic != null && input.ToLower().Contains(bot.FavouriteTopic))
+            AddBotMessage($"As someone interested in {bot.FavouriteTopic}, this topic is especially relevant to you!");
         InputBox.Clear();
     }
 

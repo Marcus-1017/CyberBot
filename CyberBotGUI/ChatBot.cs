@@ -5,7 +5,61 @@ using System.Collections.Generic;
 
 public class ChatBot
 {
-    public string ?Name; 
+    public string ?Name;
+    public string? FavouriteTopic;
+    private Random random = new();
+    public string? LastTopic { get; set; }
+
+    //random responses dictionary
+    private Dictionary<string, List<string>> randomResponses = new()
+{
+    {"phish", new List<string>
+        {
+            "Quick phishing tip: Be cautious of emails asking for personal information. Scammers often disguise themselves as trusted organisations so try to verify who they are.\n",
+            "Quick phishing tip: Never click suspicious links in emails, go directly to the website instead.\n",
+            "Quick phishing tip: Check the sender's email address carefully for subtle misspellings.\n"
+        }
+    },
+    {"passw", new List<string>
+        {
+            "Quick password tip: Use a password manager to keep track of strong unique passwords.\n",
+            "Quick password tip: Never reuse the same password across multiple accounts.\n",
+            "Quick password tip: Enable two-factor authentication wherever possible.\n"
+        }
+    },
+    {"scam", new List<string>
+        {
+            "Quick scam tip: If it sounds too good to be true, it probably is.\n",
+            "Quick scam tip: Never send money to someone you haven't met in person.\n",
+            "Quick scam tip: Always verify the identity of anyone asking for personal details.\n"
+        }
+    }
+};
+
+    public string? GetRandomResponse(string input)
+    {
+        foreach (var entry in randomResponses)
+        {
+            if (input.Contains(entry.Key))
+            {
+                int index = random.Next(entry.Value.Count);
+                return entry.Value[index];
+            }
+        }
+        return null;
+    }
+
+
+    //"sentiment" dictionary 
+    private Dictionary<string, string> sentiments = new()
+{
+    {"worri",  "Yeah I get it, its worrying stuff. Heres some tips to help.\n"},
+    {"worry",  "Yeah I get it, its worrying stuff. Heres some tips to help.\n"},
+    {"scared",   "Dont be scared. Heres what works for me.\n"},
+    {"confused", "No worries, let me explain it better.\n"},
+    {"frustrated", "Yeah I feel you. Let me help.\n"},
+    {"anxious",  "Take a breath. One step at a time.\n"}
+};
 
     //Main dictionary, the program loops through this one first
     private Dictionary<string,string> responses = new() 
@@ -124,6 +178,35 @@ public class ChatBot
         }
     };
 
+    public string? DetectInterest(string input)
+    {
+        string[] topics = { "password", "phishing", "privacy", "scams", "browsing", "social media", "updates" };
+
+        foreach (string topic in topics)
+        {
+            if (input.Contains("interest") || input.Contains("like") || input.Contains("care about"))
+            {
+                if (input.Contains(topic))
+                {
+                    FavouriteTopic = topic;
+                    return $"Great! I'll remember that you're interested in {topic}. It's a crucial part of staying safe online.\n";
+                }
+            }
+        }
+        return null;
+    }
+
+    //loops in the sentiment dictionary
+    public string? GetSentimentResponse(string input)
+    {
+        foreach (var entry in sentiments)
+        {
+            if (input.Contains(entry.Key))
+                return entry.Value;
+        }
+        return null;
+    }
+
     //this method will take input from program.cs and 
     //loop through the dictionary to see if the input contains any keywords from the input
     public string? GetResponse(string input){
@@ -132,19 +215,36 @@ public class ChatBot
         {
             if (input.Contains(entry.Key))
             {
+                //this is to match one of the follow up phrases
+                LastTopic = entry.Value;
+
                 return entry.Value;
             }
         }
         return null;
     }
 
-        public string? GetConversation(string input)
+    public string? GetConversation(string input)
+    {
+        foreach (var entry in conversation)
         {
-            foreach (var entry in conversation)
-            {
-                if (input.Contains(entry.Key))
-                    return entry.Value;
-            }
-            return null;
+            if (input.Contains(entry.Key))
+                return entry.Value;
         }
+        return null;
+    }
+
+    public string? GetFollowUp(string input)
+    {
+        string[] followUpPhrases = { "more", "explain", "elaborate", "another tip", "tell me more" };
+
+        foreach (string phrase in followUpPhrases)
+        {
+            if (input.Contains(phrase) && LastTopic != null)
+            {
+                return GetRandomResponse(LastTopic);
+            }
+        }
+        return null;
+    }
 }
