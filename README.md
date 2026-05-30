@@ -40,7 +40,8 @@ Open `CyberBotApp.slnx` in Visual Studio and run `CyberBotGUI`.
 
 ## YouTube
 [Part 1 presentation](https://youtu.be/BtPp5oNgwtY)
+[Part 1 presentation](https://youtu.be/CrVPz4Gxxf8)
 
 ## CI Status
-![CI](assets/CI_Actions.png)
-![Commits](assets/Commits.png)
+![CI](CyberBot/assets/CI_Actions.png)
+![Commits](CyberBot/assets/Commits.png)
