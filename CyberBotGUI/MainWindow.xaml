@@ -5,8 +5,78 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CyberBotGUI"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="CyberBot" Height="800" Width="400" Background="#1e1e2e">
 
+    <Grid Background="#FF1E1E2E">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="70"/>
+        </Grid.RowDefinitions>
+
+        <Border BorderBrush="#FF151525" BorderThickness="1" Grid.Row="1"/>
+
+        <!-- heading -->
+
+        <TextBlock 
+            Grid.Row="0"
+            FontSize="35" 
+            HorizontalAlignment="Center" 
+            Text="CyberBot" 
+            VerticalAlignment="Center" 
+            Foreground="#FFCBA6F7" 
+            FontFamily="JetBrainsMono NFM" 
+            FontWeight="Bold">
+            
+            <TextBlock.Effect>
+                <DropShadowEffect ShadowDepth="0" 
+                   Color="#FF181825" 
+                   Opacity="1" 
+                   BlurRadius="6"/>
+            </TextBlock.Effect>
+            
+        </TextBlock>
+        
+        <!-- scrollable chat space -->
+
+        <Border Grid.Row="1"
+        Margin="10" 
+        Background="#181825"
+        BorderBrush="#313244"
+        BorderThickness="1">
+
+            <ScrollViewer VerticalScrollBarVisibility="Hidden">
+
+                <StackPanel x:Name="ChatPanel"/>
+
+            </ScrollViewer>
+
+        </Border>
+
+        <!-- input -->
+
+        <Grid Grid.Row="2">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="90"/>
+            </Grid.ColumnDefinitions>
+
+			<TextBox x:Name="InputBox"
+                     Margin="5"
+                     FontSize="16"
+                     Background="#FF181825"/>
+
+            <Button Grid.Column="1"
+                    x:Name="SendButton"
+                    Content="Send"
+                    FontSize="25"
+                    
+                    Margin="5" 
+                    Background="#FF181825" 
+                    Foreground="#FFCBA6F7"/>
+
+        </Grid>
     </Grid>
 </Window>

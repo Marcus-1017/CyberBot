@@ -12,8 +12,13 @@ public static class ConsoleUI
     {
        try
        {
-           new SoundPlayer("assets/greeting.wav").PlaySync();
-       }
+            string path;
+            if (File.Exists("assets/greeting.wav"))
+                path = "assets/greeting.wav";
+            else
+                path = "../../../assets/greeting.wav";
+            new SoundPlayer(path).PlaySync();
+        }
        catch (System.IO.FileNotFoundException)
        {
            Console.WriteLine("greeting audio file not found, proceeding without audio.");
