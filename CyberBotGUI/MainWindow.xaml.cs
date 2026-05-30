@@ -69,7 +69,7 @@ public partial class MainWindow : Window
         if (sentiment != null)
             AddBotMessage(sentiment);
 
-        string? response = bot.GetResponse(input.ToLower()) ?? bot.GetConversation(input.ToLower());
+
         AddBotMessage(bot.GetResponse(input.ToLower()) ?? bot.GetConversation(input.ToLower()) ?? "I'm not sure I'm familiar with that keyword!");
 
         //this is for specialised responses

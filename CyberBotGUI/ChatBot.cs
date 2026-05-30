@@ -8,7 +8,7 @@ public class ChatBot
     public string ?Name;
     public string? FavouriteTopic;
     private Random random = new();
-    public string? LastTopic { get; set; }
+    public string? LastTopic;
 
     //random responses dictionary
     private Dictionary<string, List<string>> randomResponses = new()
@@ -216,7 +216,7 @@ public class ChatBot
             if (input.Contains(entry.Key))
             {
                 //this is to match one of the follow up phrases
-                LastTopic = entry.Value;
+                LastTopic = entry.Key;
 
                 return entry.Value;
             }
