@@ -64,13 +64,16 @@
             </Grid.ColumnDefinitions>
 
 			<TextBox x:Name="InputBox"
+					 KeyDown="InputBox_KeyDown"
                      Margin="5"
                      FontSize="16"
-                     Background="#FF181825"/>
+                     Background="#FF181825"
+					 Foreground="#FFCBA6F7"/>
 
             <Button Grid.Column="1"
                     x:Name="SendButton"
                     Content="Send"
+					Click="SendButton_Click"
                     FontSize="25"
                     
                     Margin="5" 
