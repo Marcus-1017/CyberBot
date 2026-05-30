@@ -1,26 +1,46 @@
-# CyberBot
+# CyberBotApp
 
-- A cybersecurity awareness chatbot built in C#
+A cybersecurity awareness chatbot built in C#, available as both a console app (Part 1) and a WPF GUI (Part 2).
 
-## how to run 
-- clone this repository, navigate to the project file with: ```cd CyberBot```, then use: ```dotnet run```
+## Projects
+- **CyberBot** — console application (Part 1)
+- **CyberBotGUI** — WPF GUI application (Part 2)
 
-## requirements
-- .NET 10.0 or later (I have not run this project on earlier versions but it might work)
+## How to run
 
-## can talk about
-- basic greetings
-- passwords
-- phishing
-- internet privacy
-- social media safety
-- safe browsing
-- internet scams
-- software updates
+### Console app (Part 1)
+Clone this repository, navigate to the console project:
+```bash
+cd CyberBot
+dotnet run
+```
 
-## youtube 
-[youtube link](https://youtu.be/BtPp5oNgwtY) 
+### GUI app (Part 2)
+Open `CyberBotApp.slnx` in Visual Studio and run `CyberBotGUI`.
 
-## CI screenshot
+## Requirements
+- .NET 10.0 or later
+- Windows (WPF is Windows-only)
+
+## Topics
+- Passwords
+- Phishing
+- Internet privacy
+- Social media safety
+- Safe browsing
+- Internet scams
+- Software updates
+
+## Features
+- Voice greeting on launch
+- Sentiment detection
+- Memory and recall of favourite topics
+- Random response variation
+- Conversation flow with follow-up support
+
+## YouTube
+[Part 1 presentation](https://youtu.be/BtPp5oNgwtY)
+
+## CI Status
 ![CI](assets/CI_Actions.png)
 ![Commits](assets/Commits.png)
