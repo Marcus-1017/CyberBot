@@ -34,7 +34,25 @@ public partial class MainWindow : Window
             QuizNextButton,
             logger
         );
-        
+        AddBotMessage(@"
+╔═══╗     ╔╗         
+║╔═╗║     ║║         
+║║ ╚╝╔╗ ╔╗║╚═╗╔══╗╔═╗
+║║ ╔╗║║ ║║║╔╗║║╔╗║║╔╝
+║╚═╝║║╚═╝║║╚╝║║║═╣║║ 
+╚═══╝╚═╗╔╝╚══╝╚══╝╚╝ 
+     ╔═╝║                         
+     ╚══╝                         
+                ");
+        AddBotMessage(@"
+╔══╗      ╔╗ 
+║╔╗║     ╔╝╚╗
+║╚╝╚╗╔══╗╚╗╔╝
+║╔═╗║║╔╗║ ║║ 
+║╚═╝║║╚╝║ ║╚╗
+╚═══╝╚══╝ ╚═╝
+                " );
+    
         AddBotMessage("Hi! What is your name?");
         PlayGreetingAudio();
         LoadTasks();
