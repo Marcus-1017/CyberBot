@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 public class ChatBot
 {
-    public string ?Name;
+    public string? Name;
     public string? FavouriteTopic;
     private Random random = new();
     public string? LastTopic;
