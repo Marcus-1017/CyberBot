@@ -1,30 +1,25 @@
-﻿using System.Text;
+﻿using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging; 
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace CyberBotGUI;
 
-/// <summary>
-/// Interaction logic for MainWindow.xaml
-/// </summary>
 public partial class MainWindow : Window
 {
-    //creates bot object and bool for name input
     ChatBot bot = new();
     bool nameEntered = false;
+    ActivityLogger logger = new();
+    TaskStorageHelper taskManager = new();
+
 
     public MainWindow()
     {
         InitializeComponent();
         AddBotMessage("Hi! What is your name?");
         PlayGreetingAudio();
+        LoadTasks();
 
     }
 
@@ -45,6 +40,7 @@ public partial class MainWindow : Window
             return;
         }
 
+        //checks for follow ups before interests or sentiment to keep conversational flow
         string? followUp = bot.GetFollowUp(input.ToLower());
         if (followUp != null)
         {
@@ -63,9 +59,9 @@ public partial class MainWindow : Window
             return;
         }
 
+        // checks for sentiments
         AddUserMessage(input);
         string? sentiment = bot.GetSentimentResponse(input.ToLower());
-
         if (sentiment != null)
             AddBotMessage(sentiment);
 
@@ -79,19 +75,87 @@ public partial class MainWindow : Window
             AddBotMessage("I'm not sure I'm familiar with that keyword!");
         }
 
-        //this is for specialised responses
+        // specialised response for favourite topic
         if (bot.FavouriteTopic != null && input.ToLower().Contains(bot.FavouriteTopic))
             AddBotMessage($"As someone interested in {bot.FavouriteTopic}, this topic is especially relevant to you!");
 
-        InputBox.Clear();
-    }
 
-private void InputBox_KeyDown(object sender, KeyEventArgs e)
+        InputBox.Clear();
+    }private void InputBox_KeyDown(object sender, KeyEventArgs e)
 {
     if (e.Key == Key.Enter)
         SendButton_Click(sender, e);
 }
 
+    // adds a task from the task panel
+    private void AddTaskButton_Click(object sender, RoutedEventArgs e)
+    {
+        string title = TaskTitleBox.Text.Trim();
+        string description = TaskDescBox.Text.Trim();
+        string reminder = TaskReminderBox.Text.Trim();
+
+        if (string.IsNullOrWhiteSpace(title)) return;
+
+        taskManager.AddTask(title, description, reminder);
+        TaskTitleBox.Clear();
+        TaskDescBox.Clear();
+        TaskReminderBox.Clear();
+        LoadTasks();
+    }
+
+    // marks selected task as complete
+    private void CompleteTaskButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (TaskListBox.SelectedItem is ListBoxItem item && item.Tag is CyberTask task)
+        {
+            taskManager.MarkAsComplete(task.Id);
+            LoadTasks();
+        }
+    }
+
+    // marks selected task as incomplete
+    private void IncompleteTaskButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (TaskListBox.SelectedItem is ListBoxItem item && item.Tag is CyberTask task)
+        {
+            taskManager.MarkAsIncomplete(task.Id);
+            LoadTasks();
+        }
+    }
+
+    // deletes selected task
+    private void DeleteTaskButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (TaskListBox.SelectedItem is ListBoxItem item && item.Tag is CyberTask task)
+        {
+            taskManager.DeleteTask(task.Id);
+            LoadTasks();
+        }
+    }
+
+    // loads tasks from json and displays them in the list
+    private void LoadTasks()
+    {
+        var tasks = taskManager.LoadTasks();
+        TaskListBox.ItemsSource = null;
+        TaskListBox.Items.Clear();
+
+        foreach (var task in tasks)
+        {
+            string status = task.IsComplete ? "✓" : "○";
+            string reminder = string.IsNullOrWhiteSpace(task.Reminder) ? "" : $" | Reminder: {task.Reminder}";
+            string display = $"{status} {task.Title} - {task.Description}{reminder}";
+
+            ListBoxItem item = new ListBoxItem();
+            item.Content = display;
+            item.Tag = task;
+            item.Foreground = task.IsComplete
+                ? new SolidColorBrush((Color)ColorConverter.ConvertFromString("#A6E3A1"))
+                : new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFCBA6F7"));
+
+            TaskListBox.Items.Add(item);
+        }
+    }
 private void AddBotMessage(string text)
 {
     TextBlock msg = new TextBlock();
