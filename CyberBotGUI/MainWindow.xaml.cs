@@ -11,23 +11,38 @@ public partial class MainWindow : Window
     ChatBot bot = new();
     bool nameEntered = false;
     ActivityLogger logger = new();
-    TaskStorageHelper taskManager = new();
-
+    TaskManager taskManager;
+    private QuizUIHelper quizHelper;
 
     public MainWindow()
     {
         InitializeComponent();
+        
+        taskManager = new TaskManager(logger);
+        
+        quizHelper = new QuizUIHelper(
+            QuizProgressText,
+            QuizQuestionText,
+            QuizFeedbackText,
+            QuizOptionA,
+            QuizOptionB,
+            QuizOptionC,
+            QuizOptionD,
+            QuizStartButton,
+            QuizSubmitButton,
+            QuizNextButton,
+            logger
+        );
+        
         AddBotMessage("Hi! What is your name?");
         PlayGreetingAudio();
         LoadTasks();
-
+        RefreshActivityLog();
     }
 
     private void SendButton_Click(object sender, RoutedEventArgs e)
     {
-
         string input = InputBox.Text;
-
         if (string.IsNullOrWhiteSpace(input)) return;
 
         if (!nameEntered)
@@ -40,54 +55,100 @@ public partial class MainWindow : Window
             return;
         }
 
-        //checks for follow ups before interests or sentiment to keep conversational flow
-        string? followUp = bot.GetFollowUp(input.ToLower());
+        string lower = input.ToLower();
+        AddUserMessage(input);
+
+        // NLP: Add Task Intent
+        string? taskTitle = bot.ExtractTaskTitle(input);
+        if (taskTitle != null)
+        {
+            taskManager.AddTask(taskTitle, "Added via chat", "");
+            AddBotMessage($"Task added: '{taskTitle}'. Would you like to set a reminder? (e.g. 'Remind me in 3 days')");
+            logger.Log($"NLP matched: add task — '{taskTitle}'");
+            LoadTasks();
+            RefreshActivityLog();
+            InputBox.Clear();
+            return;
+        }
+
+        // NLP: Quiz Intent
+        if (bot.DetectQuizIntent(lower))
+        {
+            AddBotMessage("Starting the cybersecurity quiz! Switching to the Quiz tab now.");
+            quizHelper.StartQuizFromChat();
+            MainTabControl.SelectedIndex = 3;
+            logger.Log("NLP matched: start quiz");
+            InputBox.Clear();
+            return;
+        }
+
+        // NLP: Activity Log Intent
+        if (bot.DetectLogIntent(lower))
+        {
+            AddBotMessage(logger.GetRecentLog(10));
+            if (logger.GetCount() > 10)
+                AddBotMessage("There are more entries. Type 'show more' or click 'Show Full Log' in the Activity Log tab.");
+            logger.Log("NLP matched: show activity log");
+            RefreshActivityLog();
+            InputBox.Clear();
+            return;
+        }
+
+        // NLP: Show More (Full Log)
+        if (lower.Contains("show more") || lower.Contains("full log"))
+        {
+            AddBotMessage(logger.GetFullLog());
+            logger.Log("NLP matched: show full activity log");
+            RefreshActivityLog(showAll: true);
+            InputBox.Clear();
+            return;
+        }
+
+        // Existing Chatbot Logic
+        string? followUp = bot.GetFollowUp(lower);
         if (followUp != null)
         {
-            AddUserMessage(input);
             AddBotMessage(followUp);
             InputBox.Clear();
             return;
         }
 
-        string? interest = bot.DetectInterest(input.ToLower());
+        string? interest = bot.DetectInterest(lower);
         if (interest != null)
         {
-            AddUserMessage(input);
             AddBotMessage(interest);
             InputBox.Clear();
             return;
         }
 
-        // checks for sentiments
-        AddUserMessage(input);
-        string? sentiment = bot.GetSentimentResponse(input.ToLower());
+        string? sentiment = bot.GetSentimentResponse(lower);
         if (sentiment != null)
             AddBotMessage(sentiment);
 
-        string? response = bot.GetResponse(input.ToLower()) ?? bot.GetConversation(input.ToLower());
+        string? response = bot.GetResponse(lower) ?? bot.GetConversation(lower);
         if (response != null)
         {
             AddBotMessage(response);
+            if (bot.LastTopic != null)
+                logger.Log($"Keyword matched: {bot.LastTopic} - response delivered");
         }
         else if (sentiment == null)
         {
             AddBotMessage("I'm not sure I'm familiar with that keyword!");
         }
 
-        // specialised response for favourite topic
-        if (bot.FavouriteTopic != null && input.ToLower().Contains(bot.FavouriteTopic))
+        if (bot.FavouriteTopic != null && lower.Contains(bot.FavouriteTopic))
             AddBotMessage($"As someone interested in {bot.FavouriteTopic}, this topic is especially relevant to you!");
 
-
         InputBox.Clear();
-    }private void InputBox_KeyDown(object sender, KeyEventArgs e)
-{
-    if (e.Key == Key.Enter)
-        SendButton_Click(sender, e);
-}
+    }
 
-    // adds a task from the task panel
+    private void InputBox_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter)
+            SendButton_Click(sender, e);
+    }
+
     private void AddTaskButton_Click(object sender, RoutedEventArgs e)
     {
         string title = TaskTitleBox.Text.Trim();
@@ -101,42 +162,59 @@ public partial class MainWindow : Window
         TaskDescBox.Clear();
         TaskReminderBox.Clear();
         LoadTasks();
+        RefreshActivityLog();
     }
 
-    // marks selected task as complete
+    private void HelpButton_Click(object sender, RoutedEventArgs e)
+    {
+        MessageBox.Show(
+            "Chat Commands:\n\n" +
+            "  add task to [title]        e.g. 'Add task to Enable 2FA'\n" +
+            "  remind me to [title]       e.g. 'Remind me to update my password'\n" +
+            "  start quiz                 launches the cybersecurity quiz\n" +
+            "  show activity log          shows the last 10 actions\n" +
+            "  show more                  shows the full activity history\n\n" +
+            "Cybersecurity topics:\n" +
+            "  passwords, phishing, privacy, scams,\n" +
+            "  browsing, social media, updates",
+            "How to Use CyberBot",
+            MessageBoxButton.OK,
+            MessageBoxImage.Information);
+    }
+
     private void CompleteTaskButton_Click(object sender, RoutedEventArgs e)
     {
         if (TaskListBox.SelectedItem is ListBoxItem item && item.Tag is CyberTask task)
         {
             taskManager.MarkAsComplete(task.Id);
             LoadTasks();
+            RefreshActivityLog();
         }
     }
 
-    // marks selected task as incomplete
     private void IncompleteTaskButton_Click(object sender, RoutedEventArgs e)
     {
         if (TaskListBox.SelectedItem is ListBoxItem item && item.Tag is CyberTask task)
         {
             taskManager.MarkAsIncomplete(task.Id);
             LoadTasks();
+            RefreshActivityLog();
         }
     }
 
-    // deletes selected task
     private void DeleteTaskButton_Click(object sender, RoutedEventArgs e)
     {
         if (TaskListBox.SelectedItem is ListBoxItem item && item.Tag is CyberTask task)
         {
             taskManager.DeleteTask(task.Id);
             LoadTasks();
+            RefreshActivityLog();
         }
     }
 
-    // loads tasks from json and displays them in the list
     private void LoadTasks()
     {
-        var tasks = taskManager.LoadTasks();
+        var tasks = taskManager.GetAllTasks();
         TaskListBox.ItemsSource = null;
         TaskListBox.Items.Clear();
 
@@ -156,34 +234,99 @@ public partial class MainWindow : Window
             TaskListBox.Items.Add(item);
         }
     }
-private void AddBotMessage(string text)
-{
-    TextBlock msg = new TextBlock();
-    msg.Text = "CyberBot: " + text;
-    msg.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#A6E3A1"));
-    msg.Margin = new Thickness(10);
-    msg.TextWrapping = TextWrapping.Wrap;
-    ChatPanel.Children.Add(msg);
-}
 
-private void AddUserMessage(string text)
-{
-    TextBlock msg = new TextBlock();
-    msg.Text = "You: " + text;
-    msg.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#CBA6F7"));
-    msg.Margin = new Thickness(10);
-    msg.TextWrapping = TextWrapping.Wrap;
-    ChatPanel.Children.Add(msg);
-}
-
-private void PlayGreetingAudio()
-{
-    try
+    // Quiz delegates
+    private void QuizStartButton_Click(object sender, RoutedEventArgs e)
     {
-        var player = new System.Media.SoundPlayer("assets/greeting.wav");
-        player.Play();
+        quizHelper.StartQuiz();
     }
-    catch { }
-}
 
+    private void QuizSubmitButton_Click(object sender, RoutedEventArgs e)
+    {
+        quizHelper.SubmitAnswer();
+    }
+
+    private void QuizNextButton_Click(object sender, RoutedEventArgs e)
+    {
+        quizHelper.NextQuestion();
+    }
+
+    // Activity Log
+    private void RefreshLogButton_Click(object sender, RoutedEventArgs e)
+    {
+        RefreshActivityLog();
+    }
+
+    private void ShowMoreLogButton_Click(object sender, RoutedEventArgs e)
+    {
+        RefreshActivityLog(showAll: true);
+    }
+
+    private void RefreshActivityLog(bool showAll = false)
+    {
+        ActivityLogPanel.Children.Clear();
+
+        if (logger.GetCount() == 0)
+        {
+            AddLogEntry("No activity recorded yet.", "#6C7086");
+            ShowMoreLogButton.IsEnabled = false;
+            return;
+        }
+
+        string raw = showAll ? logger.GetFullLog() : logger.GetRecentLog(10);
+        string[] lines = raw.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+
+        foreach (string line in lines)
+        {
+            if (!string.IsNullOrWhiteSpace(line))
+                AddLogEntry(line, "#FFCBA6F7");
+        }
+
+        ShowMoreLogButton.IsEnabled = !showAll && logger.GetCount() > 10;
+    }
+
+    private void AddLogEntry(string text, string colorHex)
+    {
+        TextBlock tb = new TextBlock
+        {
+            Text = text,
+            Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(colorHex)),
+            Margin = new Thickness(8, 4, 8, 4),
+            TextWrapping = TextWrapping.Wrap,
+            FontSize = 13
+        };
+        ActivityLogPanel.Children.Add(tb);
+    }
+
+    private void AddBotMessage(string text)
+    {
+        TextBlock msg = new TextBlock();
+        msg.Text = "CyberBot: " + text;
+        msg.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#A6E3A1"));
+        msg.Margin = new Thickness(10);
+        msg.TextWrapping = TextWrapping.Wrap;
+        ChatPanel.Children.Add(msg);
+        ChatScrollViewer.ScrollToBottom();
+    }
+
+    private void AddUserMessage(string text)
+    {
+        TextBlock msg = new TextBlock();
+        msg.Text = "You: " + text;
+        msg.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#CBA6F7"));
+        msg.Margin = new Thickness(10);
+        msg.TextWrapping = TextWrapping.Wrap;
+        ChatPanel.Children.Add(msg);
+        ChatScrollViewer.ScrollToBottom();
+    }
+
+    private void PlayGreetingAudio()
+    {
+        try
+        {
+            var player = new System.Media.SoundPlayer("assets/greeting.wav");
+            player.Play();
+        }
+        catch { }
+    }
 }

@@ -3,6 +3,7 @@
 
 using Newtonsoft.Json;
 using System.IO;
+using System.Linq;
 
 namespace CyberBotGUI;
 
@@ -10,8 +11,6 @@ public class TaskStorageHelper
 {
     private const string FilePath = "tasks.json";
 
-    // reads tasks.json and returns the list of tasks
-    // returns empty list if file doesnt exist
     public List<CyberTask> LoadTasks()
     {
         try
@@ -28,7 +27,6 @@ public class TaskStorageHelper
         }
     }
 
-    //this method saves tasks to the json file
     public void SaveTasks(List<CyberTask> tasks)
     {
         try
@@ -39,8 +37,7 @@ public class TaskStorageHelper
         catch { }
     }
 
-    // adds a new task and saves to file
-    public void AddTask(string title, string description, string reminder)
+    public int AddTask(string title, string description, string reminder)
     {
         List<CyberTask> tasks = LoadTasks();
         int newId = tasks.Count > 0 ? tasks[^1].Id + 1 : 1;
@@ -56,9 +53,9 @@ public class TaskStorageHelper
         });
 
         SaveTasks(tasks);
+        return newId;
     }
 
-    // marks a task as complete and saves to the json file
     public void MarkAsComplete(int id)
     {
         List<CyberTask> tasks = LoadTasks();
@@ -70,7 +67,6 @@ public class TaskStorageHelper
         }
     }
 
-    // marks a task as incomplete and saves to file
     public void MarkAsIncomplete(int id)
     {
         List<CyberTask> tasks = LoadTasks();
@@ -82,8 +78,7 @@ public class TaskStorageHelper
         }
     }
 
-    // deletes a task using the ID and saves to the json file
-            public void DeleteTask(int id)
+    public void DeleteTask(int id)
     {
         List<CyberTask> tasks = LoadTasks();
         tasks.RemoveAll(t => t.Id == id);

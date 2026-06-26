@@ -1,21 +1,20 @@
 // Marcus Johnson
 // ST10496028
 
+using System.Linq;
+
 namespace CyberBotGUI;
 
-// records all significant chatbot actions with timestamps
 public class ActivityLogger
 {
     private List<string> _log = new();
 
-    // adds a timestamped entry to the log
     public void Log(string action)
     {
         string entry = DateTime.Now.ToString("[HH:mm] ") + action;
         _log.Add(entry);
     }
 
-    // returns the last 10 entries as a numbered list
     public string GetRecentLog(int count = 10)
     {
         if (_log.Count == 0)
@@ -29,7 +28,6 @@ public class ActivityLogger
         return result;
     }
 
-    // this method returns the full log as a numbered list
     public string GetFullLog()
     {
         if (_log.Count == 0)
@@ -42,7 +40,6 @@ public class ActivityLogger
         return result;
     }
 
-    // returns total number of log entries
     public int GetCount()
     {
         return _log.Count;

@@ -8,7 +8,6 @@
         Title="CyberBot" Height="800" Width="900" Background="#1e1e2e">
 
     <Grid Background="#FF1E1E2E">
-
         <Grid.RowDefinitions>
             <RowDefinition Height="60"/>
             <RowDefinition Height="*"/>
@@ -29,8 +28,26 @@
             </TextBlock.Effect>
         </TextBlock>
 
+        <!-- help button -->
+        <Button Grid.Row="0"
+            x:Name="HelpButton"
+            Width="35"
+            Height="35"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Center"
+            Margin="0,0,20,0"
+            Click="HelpButton_Click"
+            Background="#181825"
+            BorderBrush="#313244"
+            BorderThickness="1"
+            Cursor="Hand"
+            Content="?"
+            FontSize="20"
+            FontWeight="Bold"
+            Foreground="#FFCBA6F7"/>
+
         <!-- tab control -->
-        <TabControl Grid.Row="1" Grid.RowSpan="2"
+        <TabControl x:Name="MainTabControl" Grid.Row="1" Grid.RowSpan="2"
                     Background="#1e1e2e"
                     BorderBrush="#313244"
                     Foreground="#FFCBA6F7"
@@ -49,7 +66,7 @@
                             Background="#181825"
                             BorderBrush="#313244"
                             BorderThickness="1">
-                        <ScrollViewer VerticalScrollBarVisibility="Hidden">
+                        <ScrollViewer x:Name="ChatScrollViewer" VerticalScrollBarVisibility="Hidden">
                             <StackPanel x:Name="ChatPanel"/>
                         </ScrollViewer>
                     </Border>
@@ -88,7 +105,6 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <!-- input fields -->
                     <StackPanel Grid.Row="0" Margin="0,0,0,10">
                         <TextBlock Text="Title" Foreground="#FFCBA6F7" Margin="0,5"/>
                         <TextBox x:Name="TaskTitleBox"
@@ -123,7 +139,6 @@
                                 Margin="0,5"/>
                     </StackPanel>
 
-                    <!-- task list -->
                     <ListBox x:Name="TaskListBox"
                              Grid.Row="1"
                              Background="#181825"
@@ -131,38 +146,191 @@
                              BorderBrush="#313244"
                              FontSize="13"/>
 
-                    <!-- action buttons -->
-                                    <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,10,0,0">
-                    <Button x:Name="CompleteTaskButton"
-                            Content="Mark Complete"
-                            Click="CompleteTaskButton_Click"
-                            Background="#181825"
-                            Foreground="#A6E3A1"
-                            FontSize="13"
-                            Margin="0,0,10,0"
-                            Padding="10,5"/>
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,10,0,0">
+                        <Button x:Name="CompleteTaskButton"
+                                Content="Mark Complete"
+                                Click="CompleteTaskButton_Click"
+                                Background="#181825"
+                                Foreground="#A6E3A1"
+                                FontSize="13"
+                                Margin="0,0,10,0"
+                                Padding="10,5"/>
 
-                    <Button x:Name="IncompleteTaskButton"
-                            Content="Mark Incomplete"
-                            Click="IncompleteTaskButton_Click"
-                            Background="#181825"
-                            Foreground="#FAB387"
-                            FontSize="13"
-                            Margin="0,0,10,0"
-                            Padding="10,5"/>
+                        <Button x:Name="IncompleteTaskButton"
+                                Content="Mark Incomplete"
+                                Click="IncompleteTaskButton_Click"
+                                Background="#181825"
+                                Foreground="#FAB387"
+                                FontSize="13"
+                                Margin="0,0,10,0"
+                                Padding="10,5"/>
 
-                    <Button x:Name="DeleteTaskButton"
-                            Content="Delete Task"
-                            Click="DeleteTaskButton_Click"
+                        <Button x:Name="DeleteTaskButton"
+                                Content="Delete Task"
+                                Click="DeleteTaskButton_Click"
+                                Background="#181825"
+                                Foreground="#F38BA8"
+                                FontSize="13"
+                                Padding="10,5"/>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+
+            <!-- QUIZ TAB -->
+            <TabItem Header="Quiz" Foreground="#FFCBA6F7" Background="#181825">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock x:Name="QuizProgressText" 
+                               Grid.Row="0"
+                               Text="Click 'Start Quiz' to begin!"
+                               Foreground="#FFCBA6F7"
+                               FontSize="16"
+                               Margin="0,0,0,15"
+                               HorizontalAlignment="Center"/>
+
+                    <Border Grid.Row="1"
                             Background="#181825"
-                            Foreground="#F38BA8"
-                            FontSize="13"
-                            Padding="10,5"/>
-                </StackPanel>                   
+                            BorderBrush="#313244"
+                            BorderThickness="1"
+                            CornerRadius="5"
+                            Padding="15"
+                            Margin="0,0,0,15">
+                        <TextBlock x:Name="QuizQuestionText"
+                                   Text="Press the Start Quiz button below"
+                                   Foreground="#FFCBA6F7"
+                                   FontSize="18"
+                                   TextWrapping="Wrap"/>
+                    </Border>
+
+                    <StackPanel Grid.Row="2" x:Name="QuizOptionsPanel" Margin="0,0,0,15">
+                        <RadioButton x:Name="QuizOptionA" 
+                                     Content="A" 
+                                     Foreground="#FFCBA6F7"
+                                     FontSize="16"
+                                     Margin="0,5"
+                                     GroupName="QuizOptions"/>
+                        <RadioButton x:Name="QuizOptionB" 
+                                     Content="B" 
+                                     Foreground="#FFCBA6F7"
+                                     FontSize="16"
+                                     Margin="0,5"
+                                     GroupName="QuizOptions"/>
+                        <RadioButton x:Name="QuizOptionC" 
+                                     Content="C" 
+                                     Foreground="#FFCBA6F7"
+                                     FontSize="16"
+                                     Margin="0,5"
+                                     GroupName="QuizOptions"/>
+                        <RadioButton x:Name="QuizOptionD" 
+                                     Content="D" 
+                                     Foreground="#FFCBA6F7"
+                                     FontSize="16"
+                                     Margin="0,5"
+                                     GroupName="QuizOptions"/>
+                    </StackPanel>
+
+                    <Border Grid.Row="3"
+                            Background="#181825"
+                            BorderBrush="#313244"
+                            BorderThickness="1"
+                            CornerRadius="5"
+                            Padding="10"
+                            Margin="0,0,0,15">
+                        <TextBlock x:Name="QuizFeedbackText"
+                                   Text=""
+                                   Foreground="#A6E3A1"
+                                   FontSize="14"
+                                   TextWrapping="Wrap"/>
+                    </Border>
+
+                    <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Button x:Name="QuizStartButton"
+                                Content="Start Quiz"
+                                Click="QuizStartButton_Click"
+                                Background="#181825"
+                                Foreground="#A6E3A1"
+                                FontSize="16"
+                                Padding="20,10"
+                                Margin="0,0,10,0"/>
+                        
+                        <Button x:Name="QuizSubmitButton"
+                                Content="Submit Answer"
+                                Click="QuizSubmitButton_Click"
+                                Background="#181825"
+                                Foreground="#FFCBA6F7"
+                                FontSize="16"
+                                Padding="20,10"
+                                Margin="0,0,10,0"
+                                IsEnabled="False"/>
+                        
+                        <Button x:Name="QuizNextButton"
+                                Content="Next Question"
+                                Click="QuizNextButton_Click"
+                                Background="#181825"
+                                Foreground="#89B4FA"
+                                FontSize="16"
+                                Padding="20,10"
+                                IsEnabled="False"/>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+
+            <!-- ACTIVITY LOG TAB -->
+            <TabItem Header="Activity Log" Foreground="#FFCBA6F7" Background="#181825">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Text="Recent Activity"
+                               Foreground="#FFCBA6F7"
+                               FontSize="18"
+                               FontWeight="Bold"
+                               Margin="0,0,0,10"
+                               Grid.Row="0"/>
+
+                    <Border Grid.Row="1"
+                            Background="#181825"
+                            BorderBrush="#313244"
+                            BorderThickness="1"
+                            CornerRadius="5"
+                            Padding="10">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel x:Name="ActivityLogPanel"/>
+                        </ScrollViewer>
+                    </Border>
+
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+                        <Button x:Name="RefreshLogButton"
+                                Content="Refresh Log"
+                                Click="RefreshLogButton_Click"
+                                Background="#181825"
+                                Foreground="#89B4FA"
+                                FontSize="14"
+                                Padding="15,8"
+                                Margin="0,0,10,0"/>
+                        
+                        <Button x:Name="ShowMoreLogButton"
+                                Content="Show Full Log"
+                                Click="ShowMoreLogButton_Click"
+                                Background="#181825"
+                                Foreground="#FAB387"
+                                FontSize="14"
+                                Padding="15,8"
+                                IsEnabled="False"/>
+                    </StackPanel>
                 </Grid>
             </TabItem>
 
         </TabControl>
-
     </Grid>
 </Window>

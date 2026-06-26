@@ -162,6 +162,17 @@ public class ChatBot
         },
 
         {
+        "hi", "hey there\n"
+        },
+
+        {
+        "help", "Here's how to use tasks:\n" +
+                " Add task to [title]  (e.g. \"Add task to Enable 2FA\")\n" +
+                " start quiz\n" +
+                " show activity log\n"
+        },
+
+        {
         "hey", "helloooo\n"
         },
 
@@ -247,4 +258,80 @@ public class ChatBot
         }
         return null;
     }
+
+        public string GetHelpMessage()
+    {
+        return "To add a task via chat, use:\n" +
+               "Add task to [your task title]\n\n" +
+               "Example: Add task - Enable 2FA\n\n" +
+               "You can also use: 'start quiz' or 'show activity log'";
+    }
+
+    public bool DetectQuizIntent(string input)
+{
+    string[] quizPhrases = { 
+        "start quiz", "take quiz", "quiz me", "test my knowledge", 
+        "play the game", "begin quiz", "do the quiz", "launch quiz"
+    };
+    foreach (string phrase in quizPhrases)
+    {
+        if (input.Contains(phrase))
+            return true;
+    }
+    return false;
+}
+
+public bool DetectLogIntent(string input)
+{
+    string[] logPhrases = { 
+        "show activity log", "what have you done", "what did you do", 
+        "show log", "recent actions", "activity log"
+    };
+    foreach (string phrase in logPhrases)
+    {
+        if (input.Contains(phrase))
+            return true;
+    }
+    return false;
+}
+
+    public bool DetectTaskIntent(string input)
+    {
+        string[] taskPhrases = { 
+            "add task", "add a task", "create task", "i need to", 
+            "enable", "set up", "new task", "remind me to"
+        };
+        foreach (string phrase in taskPhrases)
+        {
+            if (input.Contains(phrase))
+                return true;
+        }
+        return false;
+    }
+
+ public string ExtractTaskTitle(string input)
+{
+    string[] patterns = { 
+        "add task to ", "add a task to ", "add task - ", "add a task - ",
+        "create task to ", "create task - ", "new task to ", "new task - ",
+        "remind me to ", "i need to "
+    };
+    
+    string lower = input.ToLower();
+    foreach (string pattern in patterns)
+    {
+        if (lower.Contains(pattern))
+        {
+            int start = lower.IndexOf(pattern) + pattern.Length;
+            if (start < input.Length)
+            {
+                string title = input.Substring(start).Trim();
+                if (title.Length > 0)
+                    title = char.ToUpper(title[0]) + title.Substring(1);
+                return title;
+            }
+        }
+    }
+    return null; 
+}
 }

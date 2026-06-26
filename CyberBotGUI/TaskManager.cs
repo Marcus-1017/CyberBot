@@ -1,6 +1,8 @@
 // Marcus Johnson
 // ST10496028
 
+using System.Linq;
+
 namespace CyberBotGUI;
 
 public class TaskManager
@@ -13,24 +15,24 @@ public class TaskManager
         _logger = logger;
     }
 
-    // this method adds a task and logs the action
-    public string AddTask(string title, string description, string reminder)
+    public int AddTask(string title, string description, string reminder)
     {
         _storage.AddTask(title, description, reminder);
+        var tasks = _storage.LoadTasks();
+        int id = tasks.Count > 0 ? tasks[^1].Id : 1;
+        
         string log = string.IsNullOrWhiteSpace(reminder)
             ? $"Task added: '{title}'"
             : $"Task added: '{title}' (Reminder: {reminder})";
         _logger.Log(log);
-        return log;
+        return id;
     }
 
-    // returns all tasks
     public List<CyberTask> GetAllTasks()
     {
         return _storage.LoadTasks();
     }
 
-    // marks a task complete and logs the action
     public void MarkAsComplete(int id)
     {
         var tasks = _storage.LoadTasks();
@@ -40,7 +42,6 @@ public class TaskManager
             _logger.Log($"Task marked complete: '{task.Title}'");
     }
 
-    // marks a task incomplete and logs the action
     public void MarkAsIncomplete(int id)
     {
         var tasks = _storage.LoadTasks();
@@ -49,7 +50,7 @@ public class TaskManager
         if (task != null)
             _logger.Log($"Task marked incomplete: '{task.Title}'");
     }
-    // deletes a task and logs the action
+
     public void DeleteTask(int id)
     {
         var tasks = _storage.LoadTasks();
@@ -57,5 +58,17 @@ public class TaskManager
         _storage.DeleteTask(id);
         if (task != null)
             _logger.Log($"Task deleted: '{task.Title}'");
+    }
+
+    public void SetReminder(int id, string reminder)
+    {
+        var tasks = _storage.LoadTasks();
+        var task = tasks.FirstOrDefault(t => t.Id == id);
+        if (task != null)
+        {
+            task.Reminder = reminder;
+            _storage.SaveTasks(tasks);
+            _logger.Log($"Reminder set for task '{task.Title}': {reminder}");
+        }
     }
 }
