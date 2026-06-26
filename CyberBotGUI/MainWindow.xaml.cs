@@ -13,6 +13,7 @@ public partial class MainWindow : Window
     ActivityLogger logger = new();
     TaskManager taskManager;
     private QuizUIHelper quizHelper;
+    private int _pendingTaskId = -1;
 
     public MainWindow()
     {
@@ -40,108 +41,117 @@ public partial class MainWindow : Window
         RefreshActivityLog();
     }
 
-    private void SendButton_Click(object sender, RoutedEventArgs e)
+private void SendButton_Click(object sender, RoutedEventArgs e)
+{
+    string input = InputBox.Text;
+    if (string.IsNullOrWhiteSpace(input)) return;
+
+    if (!nameEntered)
     {
-        string input = InputBox.Text;
-        if (string.IsNullOrWhiteSpace(input)) return;
-
-        if (!nameEntered)
-        {
-            bot.Name = input;
-            nameEntered = true;
-            AddUserMessage(input);
-            AddBotMessage("Welcome, " + bot.Name + "! Feel free to ask me about passwords, phishing, privacy and more!");
-            InputBox.Clear();
-            return;
-        }
-
-        string lower = input.ToLower();
+        bot.Name = input;
+        nameEntered = true;
         AddUserMessage(input);
-
-        // NLP: Add Task Intent
-        string? taskTitle = bot.ExtractTaskTitle(input);
-        if (taskTitle != null)
-        {
-            taskManager.AddTask(taskTitle, "Added via chat", "");
-            AddBotMessage($"Task added: '{taskTitle}'. Would you like to set a reminder? (e.g. 'Remind me in 3 days')");
-            logger.Log($"NLP matched: add task — '{taskTitle}'");
-            LoadTasks();
-            RefreshActivityLog();
-            InputBox.Clear();
-            return;
-        }
-
-        // NLP: Quiz Intent
-        if (bot.DetectQuizIntent(lower))
-        {
-            AddBotMessage("Starting the cybersecurity quiz! Switching to the Quiz tab now.");
-            quizHelper.StartQuizFromChat();
-            MainTabControl.SelectedIndex = 3;
-            logger.Log("NLP matched: start quiz");
-            InputBox.Clear();
-            return;
-        }
-
-        // NLP: Activity Log Intent
-        if (bot.DetectLogIntent(lower))
-        {
-            AddBotMessage(logger.GetRecentLog(10));
-            if (logger.GetCount() > 10)
-                AddBotMessage("There are more entries. Type 'show more' or click 'Show Full Log' in the Activity Log tab.");
-            logger.Log("NLP matched: show activity log");
-            RefreshActivityLog();
-            InputBox.Clear();
-            return;
-        }
-
-        // NLP: Show More (Full Log)
-        if (lower.Contains("show more") || lower.Contains("full log"))
-        {
-            AddBotMessage(logger.GetFullLog());
-            logger.Log("NLP matched: show full activity log");
-            RefreshActivityLog(showAll: true);
-            InputBox.Clear();
-            return;
-        }
-
-        // Existing Chatbot Logic
-        string? followUp = bot.GetFollowUp(lower);
-        if (followUp != null)
-        {
-            AddBotMessage(followUp);
-            InputBox.Clear();
-            return;
-        }
-
-        string? interest = bot.DetectInterest(lower);
-        if (interest != null)
-        {
-            AddBotMessage(interest);
-            InputBox.Clear();
-            return;
-        }
-
-        string? sentiment = bot.GetSentimentResponse(lower);
-        if (sentiment != null)
-            AddBotMessage(sentiment);
-
-        string? response = bot.GetResponse(lower) ?? bot.GetConversation(lower);
-        if (response != null)
-        {
-            AddBotMessage(response);
-            if (bot.LastTopic != null)
-                logger.Log($"Keyword matched: {bot.LastTopic} - response delivered");
-        }
-        else if (sentiment == null)
-        {
-            AddBotMessage("I'm not sure I'm familiar with that keyword!");
-        }
-
-        if (bot.FavouriteTopic != null && lower.Contains(bot.FavouriteTopic))
-            AddBotMessage($"As someone interested in {bot.FavouriteTopic}, this topic is especially relevant to you!");
-
+        AddBotMessage("Welcome, " + bot.Name + "! Feel free to ask me about passwords, phishing, privacy and more!");
         InputBox.Clear();
+        return;
     }
+
+    string lower = input.ToLower();
+    AddUserMessage(input);
+
+    if (_pendingTaskId != -1)
+    {
+        string reminderText = input.Trim();
+        taskManager.SetReminder(_pendingTaskId, reminderText);
+        AddBotMessage($"Got it! Reminder set: '{reminderText}'.");
+        logger.Log($"Reminder set for task ID {_pendingTaskId}: {reminderText}");
+        _pendingTaskId = -1;
+        LoadTasks();
+        RefreshActivityLog();
+        InputBox.Clear();
+        return;
+    }
+
+    string? taskTitle = bot.ExtractTaskTitle(input);
+    if (taskTitle != null)
+    {
+        int newId = taskManager.AddTask(taskTitle, "", "");  // No more "Added via chat"
+        _pendingTaskId = newId;
+        AddBotMessage($"Task added: '{taskTitle}'. How many days would you like the reminder for?");
+        logger.Log($"NLP matched: add task — '{taskTitle}'");
+        LoadTasks();
+        RefreshActivityLog();
+        InputBox.Clear();
+        return;
+    }
+
+    if (bot.DetectQuizIntent(lower))
+    {
+        AddBotMessage("Starting the cybersecurity quiz! Switching to the Quiz tab now.");
+        quizHelper.StartQuizFromChat();
+        MainTabControl.SelectedIndex = 3;
+        logger.Log("NLP matched: start quiz");
+        InputBox.Clear();
+        return;
+    }
+
+    if (bot.DetectLogIntent(lower))
+    {
+        AddBotMessage(logger.GetRecentLog(10));
+        if (logger.GetCount() > 10)
+            AddBotMessage("There are more entries. Type 'show more' or click 'Show Full Log' in the Activity Log tab.");
+        logger.Log("NLP matched: show activity log");
+        RefreshActivityLog();
+        InputBox.Clear();
+        return;
+    }
+
+    if (lower.Contains("show more") || lower.Contains("full log"))
+    {
+        AddBotMessage(logger.GetFullLog());
+        logger.Log("NLP matched: show full activity log");
+        RefreshActivityLog(showAll: true);
+        InputBox.Clear();
+        return;
+    }
+
+    string? followUp = bot.GetFollowUp(lower);
+    if (followUp != null)
+    {
+        AddBotMessage(followUp);
+        InputBox.Clear();
+        return;
+    }
+
+    string? interest = bot.DetectInterest(lower);
+    if (interest != null)
+    {
+        AddBotMessage(interest);
+        InputBox.Clear();
+        return;
+    }
+
+    string? sentiment = bot.GetSentimentResponse(lower);
+    if (sentiment != null)
+        AddBotMessage(sentiment);
+
+    string? response = bot.GetResponse(lower) ?? bot.GetConversation(lower);
+    if (response != null)
+    {
+        AddBotMessage(response);
+        if (bot.LastTopic != null)
+            logger.Log($"Keyword matched: {bot.LastTopic} - response delivered");
+    }
+    else if (sentiment == null)
+    {
+        AddBotMessage("I'm not sure I'm familiar with that keyword!");
+    }
+
+    if (bot.FavouriteTopic != null && lower.Contains(bot.FavouriteTopic))
+        AddBotMessage($"As someone interested in {bot.FavouriteTopic}, this topic is especially relevant to you!");
+
+    InputBox.Clear();
+}
 
     private void InputBox_KeyDown(object sender, KeyEventArgs e)
     {
