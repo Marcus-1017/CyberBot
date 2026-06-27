@@ -69,7 +69,7 @@ Open `CyberBotApp.slnx` in Visual Studio and run `CyberBotGUI`.
 ## YouTube
 [Part 1 presentation](https://youtu.be/BtPp5oNgwtY)
 [Part 2 presentation](https://youtu.be/CrVPz4Gxxf8)
-[Part 3 presentation](https://youtu.be/thisIsAPlaceholder)
+[Part 3 presentation](https://youtu.be/R_bcz1FSZIc)
 
 ## CI Status
 ![CI](CyberBot/assets/CI_Actions.png)
